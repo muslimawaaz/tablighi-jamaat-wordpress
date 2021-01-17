@@ -103,7 +103,7 @@ function do_register_qoy(){
           echo '<h2>Please check the captcha form.</h2>';
           exit;
         }
-        $secretKey = "6Lef6xcUAAAAAP9Vl6cN67cWC1ECnW48Wg6Dxhdz";
+        $secretKey = "___your___API___key";
         $ip = $_SERVER['REMOTE_ADDR'];
         $url = 'https://www.google.com/recaptcha/api/siteverify?secret='.urlencode($secretKey).'&response='.urlencode($captcha);
         $response = file_get_contents($url);
@@ -186,7 +186,7 @@ function do_register_qoy(){
         $num = $_SESSION["phone"];
         $otp_time = strtotime(date("Y-m-d h:i:sa"));
         $curl = curl_init();
-        $url = 'https://www.fast2sms.com/dev/bulk?authorization=GNZC1Ak26qSHntL3Wdh5YDcJrzEVlm0wI9BOpiT4R7sexQKavF6IRVoep2TLdxQZgEmvj5UtXnHhz9bO&sender_id=FSTSMS&language=english&route=qt&numbers='.$num.'&message=28047&variables='.urlencode('{AA}').'&variables_values='.$ran_no;
+        $url = 'https://www.fast2sms.com/dev/bulk?authorization=___your___API___key&sender_id=FSTSMS&language=english&route=qt&numbers='.$num.'&message=28047&variables='.urlencode('{AA}').'&variables_values='.$ran_no;
         curl_setopt_array($curl, array(
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
