@@ -27,7 +27,7 @@ Jamath Waqth: <select name="tashkeel_jamath" id="tashkeel_jamath1" class="ui dro
     <option value="Masturath 40days">Masturath 40days</option>
     <option value="Masturath Berone">Masturath Berone</option>
 </select>';
-    $rows = $wpdb->get_results("SELECT ID,person_name,identifier FROM persons WHERE masjid = $masjid_id");
+    $rows = $wpdb->get_results("SELECT ID,person_name,identifier FROM person WHERE masjid = $masjid_id");
 	foreach($rows as $row){
       $options .= '<option value="'.$row->ID.'">'.$row->person_name.' - '.$row->identifier.'</option>';
     }

@@ -94,7 +94,7 @@ function hsma_halqa(){
 	include ('inc/hsma_halqa.php');
 }
 add_shortcode('hsma_halqa','hsma_halqa');
-
+add_shortcode('masjid_wari_jamath',function(){ include 'inc/masjid_wari_jamath.php'; });
 
 include ('inc/functions.php');
 include ('inc/login.php');

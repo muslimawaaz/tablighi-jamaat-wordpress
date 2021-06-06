@@ -1,23 +1,23 @@
 <?php
 global $wpdb;
 //$wpdb->show_errors(); $wpdb->print_error();
-$a = $wpdb->get_var("SELECT COUNT(waqth) FROM persons 
+$a = $wpdb->get_var("SELECT COUNT(waqth) FROM person 
 		WHERE masjid = $masjid_id
 		AND waqth = 'Berone'");
-$b = $wpdb->get_var("SELECT COUNT(waqth) FROM persons 
+$b = $wpdb->get_var("SELECT COUNT(waqth) FROM person 
 		WHERE masjid = $masjid_id
 		AND waqth = '4months'");
-$c = $wpdb->get_var("SELECT COUNT(waqth) FROM persons 
+$c = $wpdb->get_var("SELECT COUNT(waqth) FROM person 
 		WHERE masjid = $masjid_id
 		AND waqth = '40days'");
-$d = $wpdb->get_var("SELECT COUNT(waqth) FROM persons 
+$d = $wpdb->get_var("SELECT COUNT(waqth) FROM person 
 		WHERE masjid = $masjid_id
 		AND waqth = '3days'");
-$e = $wpdb->get_var("SELECT COUNT(waqth) FROM persons 
+$e = $wpdb->get_var("SELECT COUNT(waqth) FROM person 
 		WHERE masjid = $masjid_id
 		AND (waqth = '' OR waqth = '--') ");
 
-$total = $wpdb->get_var("SELECT COUNT(ID) FROM persons 
+$total = $wpdb->get_var("SELECT COUNT(ID) FROM person 
 		WHERE masjid = $masjid_id");
 
 ?>

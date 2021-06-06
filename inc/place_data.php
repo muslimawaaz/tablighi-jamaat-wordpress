@@ -11,6 +11,6 @@ $place_id = $_GET["id"];
 $place = $wpdb->get_row("SELECT * FROM places WHERE ID = $place_id AND masjid = $masjid_id");
 if ($masjid_id && $place) {
 	echo '<h1>'.$place->place_name.'</h1>';
-	$rows = $wpdb->get_results("SELECT * FROM persons WHERE place = $place_id");
+	$rows = $wpdb->get_results("SELECT * FROM person WHERE place = $place_id");
 	print_r($rows);
 }

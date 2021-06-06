@@ -1,18 +1,49 @@
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.css">
-<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.js"></script>
-<script type="text/javascript" src="https://semantic-ui.com/javascript/library/tablesort.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/dropdown.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/transition.js"></script>
 <?php
 $user_id = get_current_user_id();
 if (!$user_id) {
-	echo "Please Login / Regsiter.";
-	exit;
-}
-global $wpdb;
-$meta = get_user_meta($user_id);
-$userdata = get_userdata($user_id);
-$meta = get_user_meta($user_id);
+	echo do_shortcode('[firebase_otp_login]');
+} else {
+	?>
+	<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.js"></script>
+	<script type="text/javascript" src="https://semantic-ui.com/javascript/library/tablesort.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/dropdown.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/transition.js"></script>
+	<?php
+	global $wpdb;
+	$meta = get_user_meta($user_id);
+	$userdata = get_userdata($user_id);
+	if (!$meta["person"][0]) {
+		// search for number in database
+		$phone = $userdata->user_login;
+		$rows = $wpdb->get_results("SELECT * FROM person where phone='$phone' OR phone2='$phone'");
+		print_r($rows);
+	} else {
+		$masjid = $wpdb->get_row("SELECT masjid from person where id=$person");
+		if ($masjid) {
+			echo 'MASJID ID: '.$masjid;
+		} else {
+			?>
+			<form method="POST">
+				<table>
+					<tr>
+						<td>Select Masjid</td>
+						<td>
+							<select name="masjid">
+								<option value="masjid_id">Masjid</option>
+								<option value="masjid_id">Masjid</option>
+							</select>
+						</td>
+					</tr>
+				</table>
+			</form>
+			<a href="/add-masjid" class="button">ADD NEW MASJID</a>
+			<?php
+			if ($_POST["masjid"]) {
+				$wpdb->update('person',array('masjid'=>$masjid),array('id'=>$person));
+				redirect_to_same();
+			}
+		}
+	}
 if (!$meta["masjid"][0]) {
 	if(isset($_POST["submit1"])){
 	    $data["pincode"] = $_POST["pincode"];
@@ -195,4 +226,5 @@ if (!$meta["masjid"][0]) {
 	echo "You have selected masjid !!!";
 	echo '<br>Masjid ID: '.$masjid->id;
 	echo '<br>Masjid Name: <ins>'.$masjid->masjid.'</ins>';
+}
 }

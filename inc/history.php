@@ -41,7 +41,7 @@ if(($masjid_id) || ($masjid_view)){
     $masjid_id = $masjid_view;
   }
 
-$rows = $wpdb->get_results("SELECT * FROM history WHERE table_name = 'persons' AND masjid = $masjid_id");
+$rows = $wpdb->get_results("SELECT * FROM history WHERE table_name = 'person' AND masjid = $masjid_id");
 $user = $wpdb->get_results("SELECT ID,user_login FROM wp_users", OBJECT_K );
 print_r($users);
 ?>

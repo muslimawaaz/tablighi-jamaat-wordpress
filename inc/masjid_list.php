@@ -62,7 +62,7 @@ if(isset($_POST["edit"])){
 		</table>
 	</form>
 	<?php 
-} 
+}
 if(isset($_POST["save"])){
     $wpdb->update( 
         	'masjids', 

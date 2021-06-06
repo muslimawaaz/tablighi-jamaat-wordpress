@@ -4,7 +4,9 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.js"></script>
 
 <style>
-  #masthead, .ab-user-links, #main-nav, .ab-primary-menu-wrapper{      display: none;    }
+  #masthead, .ab-user-links, #main-nav, .ab-primary-menu-wrapper{
+        /*display: none;*/
+    }
   select{	width:100%; }
   .microphone.icon{ float:right; }
 </style>

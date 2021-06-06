@@ -7,7 +7,7 @@
   input[type=number]{      width: 90px; height: 30px; padding: 5px;    }
   #masthead, .ab-user-links, #main-nav, 
   .ab-primary-menu-wrapper, .sharedaddy, #colophon{
-    display: none !important;
+    /*display: none !important;*/
   }
   .site-content {
     padding: 20px 0;
@@ -42,9 +42,6 @@
 <?php 
 global $wpdb;
 if(is_user_logged_in()){
-  if ($_GET["once"]==474) {
-    $wpdb->update('person',array('waqth' => '--'), array('waqth' => null));
-  }
 $user_id = get_current_user_id();
 $masjid_id = get_user_meta($user_id, 'masjid', true);
 
@@ -335,7 +332,7 @@ if ($row->admin==$user_id) {
         <i class="checkmark green large icon" id="tashkeel_j_save'.$row->id.'" 
             onclick="tashkeel_j_save('.$row->id.')" style="display:none"></i>';
   }
-  echo '<span id="tashkeel_j_name'.$row->id.'" class="tsk'.$row->tashkeel_jamath.'">'.$row->tashkeel_jamath.'</span>';
+  echo '<br><span id="tashkeel_j_name'.$row->id.'" class="tsk'.$row->tashkeel_jamath.'">'.$row->tashkeel_jamath.'</span>';
   if($row->admin==$user_id && 0){
     echo '<br><i class="edit red icon" id="response_edit'.$row->id.'" 
               onclick="response_edit('.$row->id.')"></i> 

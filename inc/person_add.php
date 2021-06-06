@@ -7,7 +7,9 @@
 
 <style type="text/css">
   #masthead, .ab-user-links, #main-nav, 
-  .ab-primary-menu-wrapper{      display: none;    }
+  .ab-primary-menu-wrapper{      
+  	/*display: none;*/
+  }
   button.ui {    height: 35px;  }
   form      {    display:inline;  }
   .person{   color:blue; cursor:pointer; font-size: 16px;  }
