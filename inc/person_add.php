@@ -39,7 +39,7 @@ if(!$masjid_id){
   $(".entry-title").first().css("text-transform", "capitalize");
   $(".entry-title").first().css("cursor", "pointer");
   $(".entry-title").first().click(function(){
-        window.location.href = "<?php echo site_url(); ?>/masjid";
+        window.location.href = "<?php echo site_url(); ?>/persons";
     });
 </script>
 <script type="text/javascript">

@@ -1,230 +1,117 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/dropdown.min.css" integrity="sha512-YYS7fyqDxVE/yJ1280i8KjA+nC7wAtv2u/qkulKbdMpmp8DBWX0Wj+HtILsFyvq+fouCwCyr0hasPAz1eBlvwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/transition.min.css" integrity="sha512-5StPzJo8hFyTvXfJ31FMB37EXRMVeUg+J3yvUNOJcL83MEMr7VrhZSNsoL3GDmUDBGBBhoTjnJx0Ql7cH9LY7g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/dropdown.min.js" integrity="sha512-8F/2JIwyPohlMVdqCmXt6A6YQ9X7MK1jHlwBJv2YeZndPs021083S2Z/mu7WZ5g0iTlGDYqelA9gQXGh1F0tUw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/transition.min.js" integrity="sha512-MCuLP92THkMwq8xkT2cQg5YpF30l3qzJuBRf/KsbQP1czFkRYkr2dSkCHmdJETqVmvIq5Y4AOVE//Su+cH+8QA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <?php
+error_reporting(E_ERROR | E_PARSE);
+global $wpdb;
+top:
 $user_id = get_current_user_id();
 if (!$user_id) {
 	echo do_shortcode('[firebase_otp_login]');
 } else {
-	?>
-	<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.js"></script>
-	<script type="text/javascript" src="https://semantic-ui.com/javascript/library/tablesort.js"></script>
-	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/dropdown.js"></script>
-	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/transition.js"></script>
-	<?php
-	global $wpdb;
-	$meta = get_user_meta($user_id);
+	if ($_POST["select_person"]) {
+		update_user_meta($user_id,'person',$_POST['select_person']);
+		$wpdb->update('person',array('user'=>$user_id),array('id'=>$_POST['select_person']));
+	}
+	$person_id = get_user_meta($user_id, 'person', true);
 	$userdata = get_userdata($user_id);
-	if (!$meta["person"][0]) {
+	if (!$person_id) {
+		$phone = substr($userdata->user_login, -10);
 		// search for number in database
-		$phone = $userdata->user_login;
-		$rows = $wpdb->get_results("SELECT * FROM person where phone='$phone' OR phone2='$phone'");
-		print_r($rows);
-	} else {
-		$masjid = $wpdb->get_row("SELECT masjid from person where id=$person");
-		if ($masjid) {
-			echo 'MASJID ID: '.$masjid;
-		} else {
+		$persons = $wpdb->get_results("SELECT id,person,father FROM person WHERE phone='$phone' OR phone2='$phone'");
+		if (count($persons)) {
 			?>
-			<form method="POST">
-				<table>
-					<tr>
-						<td>Select Masjid</td>
-						<td>
-							<select name="masjid">
-								<option value="masjid_id">Masjid</option>
-								<option value="masjid_id">Masjid</option>
-							</select>
-						</td>
-					</tr>
-				</table>
-			</form>
-			<a href="/add-masjid" class="button">ADD NEW MASJID</a>
+			<h3>Persons with same phone number found.</h3>
+			<table>
 			<?php
-			if ($_POST["masjid"]) {
-				$wpdb->update('person',array('masjid'=>$masjid),array('id'=>$person));
-				redirect_to_same();
+			foreach ($persons as $person) {
+				?>
+				<tr>
+					<td><b>Name: </b><?php echo $person->person; ?><br>
+						<b>Father Name: </b><?php echo $person->father; ?>
+					</td>
+					<td><form method="POST">
+							<input type="hidden" name="select_person" value="<?php echo $person->id; ?>">
+							<button>SELECT</button>
+						</form>
+					</td>
+				</tr>
+				<?php
+			}
+			echo '</table>';
+		} else {
+			create_person($user_id);
+			goto top;
+		}
+	} else {
+		$masjid_id = $wpdb->get_var("SELECT masjid FROM person WHERE id=$person_id");
+		if ($masjid_id) {
+			show_masjid_details($masjid_id);
+		} else {
+			$extra_details = get_user_meta($user_id,'extra_details',true);
+			if ($_POST['extra_details']) {
+			if (!$extra_details["country"] && !$extra_details["district"] && !$extra_details["town"] && !$extra_details["masjid"]) {
+				if ($_POST["add"]) {
+					$wpdb->insert('country',array('country'=>$_POST['country_name']));
+					$details['country'] = $wpdb->insert_id;
+				} else {
+					$details["country"] = $_POST['country'];
+				}
+			} else if ($extra_details["country"]) {
+				if ($_POST["add"]) {
+					$wpdb->insert('district',array('district'=>$_POST['district_name'],'country'=>$extra_details["country"]));
+					$details['district'] = $wpdb->insert_id;
+				} else {
+					$details["district"] = $_POST['district'];
+				}
+			} else if ($extra_details["district"]) {
+				if ($_POST["add"]) {
+					$wpdb->insert('town',array('town'=>$_POST['town_name'],'district'=>$extra_details["district"]));
+					$details['town'] = $wpdb->insert_id;
+				} else {
+					$details["town"] = $_POST['town'];
+				}
+			} else if ($extra_details["town"]) {
+				if ($_POST["add"]) {
+					$wpdb->insert('masjid',array(
+						'masjid'=>$_POST['masjid_name'],
+						'town'=>$extra_details["town"],
+						'added_by'=>$user_id
+					));
+					$details['masjid'] = $wpdb->insert_id;
+				} else {
+					$details["masjid"] = $_POST['masjid'];
+				}
+				$wpdb->update('person',array('masjid'=>$details["masjid"]),array('id'=>$person_id));
+				update_user_meta($user_id,'extra_details',$details);
+				clear_form_data();
+				goto top;
+			}
+			update_user_meta($user_id,'extra_details',$details);
+			}
+			$extra_details = get_user_meta($user_id,'extra_details',true);
+			if (!$extra_details["country"] && !$extra_details["district"] && !$extra_details["town"] && !$extra_details["masjid"]) {
+				echo select_entity("country",'','');
+			} else if ($extra_details["country"]) {
+				echo select_entity("district","country",$extra_details["country"]);
+			} else if ($extra_details["district"]) {
+				echo select_entity("town","district",$extra_details["district"]);
+			} else if ($extra_details["town"]) {
+				echo select_entity("masjid","town",$extra_details["town"]);
 			}
 		}
 	}
-if (!$meta["masjid"][0]) {
-	if(isset($_POST["submit1"])){
-	    $data["pincode"] = $_POST["pincode"];
-	    foreach ($data as $key => $value) {
-	        update_user_meta($user_id, $key, $value);
-	    }
-	    ?>
-	    <script type="text/javascript">
-	        window.location.href = "<?php echo get_permalink(); ?>";
-	    </script>
-	    <?php
-	}
-	$data["pincode"] = $meta["pincode"][0];
-	?>
-	<form method="post" enctype="multipart/form-data">
-	    <table class="ui collapsing striped table">
-	        <tr>
-	            <td>Pincode</td>
-	            <td><input type="text" name="pincode">
-	            </td>
-	        </tr>
-	        <tr>
-	            <td></td>
-	            <td><input type="submit" name="submit1" value="Save" class="ui blue mini button"></td>
-	        </tr>
-	    </table>
-	</form>
-    <script type="text/javascript">
-        $('input[name=pincode]').val('<?php echo $data["pincode"]; ?>');
-    </script>
-	<?php
-	if ($meta["pincode"][0]) {
-		$pincode = $meta["pincode"][0];
-		if(isset($_POST["submit2"])){
-		    $data["town"] = $_POST["town"];
-		    foreach ($data as $key => $value) {
-		        update_user_meta($user_id, $key, $value);
-		    }
-		    ?>
-		    <script type="text/javascript">
-		        window.location.href = "<?php echo get_permalink(); ?>";
-		    </script>
-		    <?php
-		}
-		$data["town"] = $meta["town"][0];
+	if ($person_id) {
 		?>
-		<hr>
-		<form method="post" enctype="multipart/form-data">
-		    <table class="ui collapsing striped table">
-		        <tr><td>Town</td>
-		        <?php
-		        global $wpdb;
-		        $town_opts = $wpdb->get_results("SELECT id,town FROM pincode WHERE pincode = $pincode",ARRAY_A);
-		        ?>
-		        <td><select class="ui search dropdown" name="town">
-		                <option value="">Select</option>
-		        <?php
-		        foreach ($town_opts as $key) { 
-		            echo '<option value="'.$key["id"].'">'.$key["town"].'</option>';
-		        }
-		        ?>
-		            </select>
-		            <script type="text/javascript">
-		                $(".ui.dropdown").dropdown();
-		            </script>
-		        </td>
-		        </tr>
-		        <tr>
-		            <td></td>
-		            <td><input type="submit" name="submit2" value="Save" class="ui blue mini button"></td>
-		        </tr>
-		    </table>
+		<form>
+			<table>
+				<tr><td>Your Name</td><td><input type="text" name="person"></td></tr>
+				<tr><td>Your Name</td><td><input type="text" name=""></td></tr>
+			</table>
 		</form>
-		<script type="text/javascript">
-	        $('select[name=town]').val('<?php echo $data["town"]; ?>');
-	        x = $('select[name=town]').children('option[value="<?php echo $data["town"]; ?>"]').text();
-	        $("select[name=user]").parent().children(".text").html(x);
-	        y = $('select[name=town]').parent().children(".text");
-	        y.html(x);
-	        y.css("color","black");
-	    </script>
 		<?php
 	}
-	if ($meta["town"][0]) {
-	    if(isset($_POST["submit3"])){
-		    $data["masjid"] = $_POST["masjid"];
-		    $admin_made = $wpdb->update('masjid',
-		    	array('admin'=>$user_id),
-		    	array('admin'=>NULL,'id'=>$data["masjid"])
-		    );
-		    if ($admin_made) {
-		    	$data["masjid_admin"] = $_POST["masjid"];
-		    }
-		    foreach ($data as $key => $value) {
-		        update_user_meta($user_id, $key, $value);
-		    }
-		    ?>
-		    <script type="text/javascript">
-		        window.location.href = "<?php echo get_permalink(); ?>";
-		    </script>
-		    <?php
-		}
-	    if ($_POST["action"]=='Add') {
-        	$row["masjid"] = $_POST["masjid"];
-        	$row["town"] = $meta["town"][0];
-    		$result = $wpdb->insert('masjid',$row);
-    		if ($result==1) {
-    			$_SESSION["message"] = "Masjid added successfully";
-    		} else {
-    			$_SESSION["message"] = "Error occured while adding Masjid";
-    		}
-    		?>
-		    <script type="text/javascript">
-		        window.location.href = "<?php echo get_permalink(); ?>";
-		    </script>
-		    <?php
-	    }
-		if ($_SESSION["message"]) {
-			echo '<h2 style="color:green">'.$_SESSION["message"].'</h2>';
-			if (!$_POST["action"]=='Add') {
-				$_SESSION["message"] = '';
-			}
-		}
-		$data["masjid"] = $meta["masjid"][0];
-		?><hr>
-		Masjid cannot be changed after saved.
-		<form method="post" enctype="multipart/form-data">
-		    <table class="ui collapsing striped table">
-		        <tr><td>Select Masjid</td>
-		        <?php
-		        $town = $meta["town"][0];
-		        $masjid_opts = $wpdb->get_results("SELECT id,masjid FROM masjid where town=$town",ARRAY_A);
-		        ?>
-		        <td><select class="ui search dropdown" name="masjid">
-		                <option value="">Select</option>
-				        <?php
-				        foreach ($masjid_opts as $key) { 
-				            echo '<option value="'.$key["id"].'">'.$key["masjid"].'</option>';
-				        }
-				        ?>
-		            </select>
-		            <script type="text/javascript">
-		                $(".ui.dropdown").dropdown();
-		            </script>
-		        </td>
-		        </tr>
-		        <tr>
-		            <td></td>
-		            <td><input type="submit" name="submit3" value="Save" class="ui blue mini button"></td>
-		        </tr>
-		    </table>
-		</form>
-	    <script type="text/javascript">
-	        $('select[name=masjid]').val('<?php echo $data["masjid"]; ?>');
-	        x = $('select[name=masjid]').children('option[value="<?php echo $data["masjid"]; ?>"]').text();
-	        $("select[name=user]").parent().children(".text").html(x);
-	        y = $('select[name=masjid]').parent().children(".text");
-	        y.html(x);
-	        y.css("color","black");
-	    </script>
-	    <hr>
-	    <i>Cannot find your masjid in the above list:</i>
-	    <form method="POST" enctype="multipart/form-data">
-	    <table class="ui blue striped table collapsing">
-	        <tr>
-	            <td>Add New Masjid</td>
-	            <td><input type="text" name="masjid"></td>
-	        </tr>
-            <tr row-id="">
-                <td></td>
-                <td><input type="submit" name="action" value="Add" class="ui green mini button"></td>
-            </tr>
-        </table>
-        </form>
-		<?php
-	}
-} else {
-	$masjid_id = $meta["masjid"][0];
-	$masjid = $wpdb->get_row("SELECT id,masjid FROM masjid where id=$masjid_id");
-	echo "You have selected masjid !!!";
-	echo '<br>Masjid ID: '.$masjid->id;
-	echo '<br>Masjid Name: <ins>'.$masjid->masjid.'</ins>';
 }
-}
+clear_form_data();

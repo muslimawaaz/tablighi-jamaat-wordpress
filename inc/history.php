@@ -23,10 +23,10 @@ if($masjid_id){
 }
 ?>
 <script type="text/javascript">
-  $(".entry-title").first().html('<a href="/masjid"><?php echo get_masjid_name($masjid_id); ?></a>');
+  $(".entry-title").first().html('<a href="/persons"><?php echo get_masjid_name($masjid_id); ?></a>');
   $("title").first().html('<?php echo get_masjid_name($masjid_id); ?>');
   <?php if($_GET["place_id"]){ ?>
-    $(".entry-title").first().append('<?php echo ' > <a style="color:red;" href="/masjid/?masjid_id='.$_GET["masjid_id"].'&place_id='.$_GET["place_id"].'&show=Search">'.get_place_name($_GET["place_id"]); ?></a>');
+    $(".entry-title").first().append('<?php echo ' > <a style="color:red;" href="/persons/?masjid_id='.$_GET["masjid_id"].'&place_id='.$_GET["place_id"].'&show=Search">'.get_place_name($_GET["place_id"]); ?></a>');
     $("title").first().html('<?php echo get_place_name($_GET["place_id"]).' - '.get_masjid_name($masjid_id); ?>');
   <?php } ?>
   $(".entry-title").first().css("fontSize", "20px");

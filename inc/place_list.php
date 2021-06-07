@@ -1,120 +1,117 @@
-<link href="http://allfont.net/allfont.css?fonts=agency-fb" rel="stylesheet" type="text/css" />
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.css">
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
-<script type="text/javascript" src="https://semantic-ui.com/javascript/library/tablesort.js"></script>
-<style type="text/css">
-  #masthead, .ab-user-links, #main-nav, .ab-primary-menu-wrapper{      display: none;    }
-</style>
 <?php 
 global $wpdb;
 $user_id = get_current_user_id();
-$masjid_id = get_user_meta($user_id, 'masjid', true);
-if (!$masjid_id) {
-	echo "Please select masjid.";
-	exit;
-}
-?>
-<script type="text/javascript">
-  $(".entry-title").first().html('<?php echo get_masjid_name($masjid_id); ?>');
-  $(".entry-title").first().css("fontSize", "25px");
-  $(".entry-title").first().css("color", "green");
-  $(".entry-title").first().css("text-transform", "capitalize");
-  $(".entry-title").first().css("cursor", "pointer");
-  $(".entry-title").first().click(function() {
-        window.location.href = "/masjid";
-    });
-</script>
-<?php
-if(isset($_POST["add"]) && $_POST["place"]){
-	$result = $wpdb->insert('place',
-		array(
-				'place' => $_POST["place"],
-				't_place'	=> $_POST["t_place"],
-				'masjid'	 => $masjid_id,
-				'admin'			=> $user_id
-			));
-	if($result){
-		$_SESSION["message"]='Galli Added successfully.';
-		?>
-	    <script type="text/javascript">
-	        window.location.href = "<?php echo get_permalink(); ?>";
-	    </script>
-	    <?php
-	}
-}
-if (isset($_POST["save"])) {
-	$result = $wpdb->update('place',
-			array(
-					'place'	=> $_POST["place"],
-					't_place'	=> $_POST["t_place"]
-			),array(
-					'id' 		=> $_POST["place_id"],
-					'masjid' => $masjid_id,
-					'admin'			=> $user_id
-			));
-	if($result){
-		$_SESSION["message"]='Galli Updated successfully.';
-		?>
-	    <script type="text/javascript">
-	        window.location.href = "<?php echo get_permalink(); ?>";
-	    </script>
-	    <?php
-	}
-}
-if ($_SESSION["message"] && !$_POST["place"]) {
-		echo '<h3 style="color:red">'.$_SESSION["message"].'</h3>';
-		$_SESSION["message"] = '';
-}
-if (isset($_POST["edit"])) {
-	echo '<form action="" method="POST">
-	<b>Edit:</b><br>
-		<input type="hidden" name="place_id" value="'.$_POST["place_id"].'">
-		Place Name: <input type="text" name="place" value="'.$_POST["place"].'" style="width:200px" autofocus><br>
-		వీధి పేరు: <input type="text" name="t_place" value="'.$_POST["t_place"].'" style="width:200px">
-		<input type="submit" name="save" value="Save" class="ui teal button">
-	</form>';
+if (!$user_id) {
+	echo do_shortcode('[firebase_otp_login]');
 } else {
-	?>
-	<form action="" method="POST">
-	<b>Add Galli / Area:</b><br>
-		Place Name: <input type="text" name="place" style="width:200px"><br>
-		వీధి పేరు: <input type="text" name="t_place" style="width:200px">
-		<input type="submit" name="add" value="Add" class="ui green button">
-	</form>
-	<?php
-}
-?>
-<table class="ui striped table unstackable very compact">
-	<thead>
-		<tr>
-			<th>Sl.No.</th>
-			<th>Place Name</th>
-			<th>వీధి పేరు</th>
-			<th>Edit</th>
-		</tr>
-	</thead>
-	<?php
-	$rows = $wpdb->get_results("SELECT * FROM place WHERE masjid = $masjid_id ORDER BY place");
-	foreach ($rows as $row) {
-		echo '<tr><td>'.++$i.'.</td>
-			<td><a href="/place/?id='.$row->id.'">'.$row->place.'</a></td>
-			<td><a href="/place/?id='.$row->id.'">'.$row->t_place.'</a></td>
-			<td>';
-		if ($row->admin==$user_id) {
-			echo '<form method="post">
-				<input type="hidden" name="place_id" value="'.$row->id.'">
-				<input type="hidden" name="place" value="'.$row->place.'">
-				<input type="hidden" name="t_place" value="'.$row->t_place.'">
-				<input type="submit" name="edit" value="Edit" class="ui blue button">
-			</form>';
+	$masjid_id = get_user_meta($user_id, 'extra_details', true)["masjid"];
+	if (!$masjid_id) {
+		echo 'Go to <a href="/my-account">My Account Page</a> and select Masjid';
+	} else {
+		$table_name = 'place';
+		if($_POST["action"]){
+			$data["place"] = $_POST["place"];
+			$data["t_place"] = $_POST["t_place"];
+			$data["added_by"] = $user_id;
+			$data["masjid"] = $masjid_id;
+			if($_POST["action"]=='Add'){
+				$wpdb->insert($table_name,$data);
+			} else if($_POST["action"]=='Add New' || $_POST["action"]=='Edit'){
+			?>
+			<hr>
+			<form method="POST" enctype="multipart/form-data">
+				<h2 id="small_frm">Add New Here</h2>
+				<input type="hidden" name="id">
+				<table class="ui blue striped table collapsing">
+				<tr>
+					<td>Place</td>
+					<td><input type="text" name="place" >
+					</td>
+				</tr>
+				<tr>
+					<td>వీధి పేరు</td>
+					<td><input type="text" name="t_place" >
+					</td>
+				</tr>
+					<tr>
+						<td></td>
+						<td><input type="submit" name="action" value="Add" class="ui blue button"></td>
+					</tr>
+				</table>
+				</form>
+				<style type="text/css">
+					.ui.dropdown{
+						width: 100% !important;
+					}
+				</style>
+				<?php
+			}
+			if($_POST["action"]=='Edit'){
+				$id = $_POST["id"];
+				$row = $wpdb->get_row("SELECT * FROM $table_name WHERE id = $id",ARRAY_A);
+				$data = $row;
+				?>
+				<script type="text/javascript">
+					$('input[name=action]').val('Save');
+					$('input[name=id]').val('<?php echo $_POST["id"]; ?>');
+					$('#small_frm').html('Edit Here');
+				</script>
+			<script type="text/javascript">
+				$('input[name=place]').val('<?php echo $data["place"]; ?>');
+				$('input[name=t_place]').val('<?php echo $data["t_place"]; ?>');
+			</script>
+				<?php
+			}
+			if($_POST["action"]=='Save'){
+				$id = $_POST["id"];
+				$wpdb->update($table_name,$data,array('id' => $id));
+			}
+			// if($_POST["action"]=='Delete'){
+			// 	$id = $_POST["id"];
+			// 	$wpdb->delete($table_name,array('id' => $id));
+			// }
+		} 
+		if(($_POST["action"]!='Edit') && $_POST["action"]!='Add New') {
+			?>
+			<form method="POST"><input type="submit" name="action" value="Add New" class="ui green button"></form><br>
+			<div style="overflow-x:auto">
+			<table id="myTable" class="ui unstackable celled table dataTable">
+				<thead>
+					<tr>
+						<th>Place</th>
+						<th>వీధి పేరు</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php
+					$rows = $wpdb->get_results("SELECT * FROM $table_name ORDER BY id DESC");
+					foreach($rows as $row){
+						echo '<tr row-id="'.$row->id.'">';
+						echo '<td>'.$row->place.'</td>';
+						echo '<td>'.$row->t_place.'</td>';
+						if ($row->added_by==$user_id) {
+							?>
+							<td>
+								<form method="post">
+								<input type="hidden" name="id" value="<?php echo $row->id; ?>">
+								<input type="submit" name="action" class="ui blue button" value="Edit">
+								<!-- <input type="submit" name="action" class="ui red button" value="Delete"> -->
+								</form>
+							</td>
+							<?php
+						} else {
+							echo '<td><i>Not added by you.</i></td>';
+						}
+						echo '</tr>';
+					}
+					?>
+				</tbody>
+			</table>
+			</div>
+			<?php
 		}
-		echo '<tr>';
 	}
-	?>
-</table>
-<?php
-if (count($rows)) {
-	?>
-	<a href="/add-person/" class="ui green button">Add Person</a>
-	<?php
 }
+clear_form_data();

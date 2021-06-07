@@ -1,13 +1,79 @@
 <?php
 // Redirect to same page after form submit //
-function redirect_to_same(){
+function redirect_to_same0(){
     ?>
     <script type="text/javascript">
         window.location.href = "<?php echo get_permalink(); ?>";
     </script>
     <?php
 }
+function clear_form_data(){
+    ?>
+    <script>
+	if ( window.history.replaceState ) {
+		window.history.replaceState( null, null, window.location.href );
+	}
+	</script><?php
+}
 
+function create_person($user_id){
+	global $wpdb;
+	$user_id = get_current_user_id();
+	$phone = substr(get_userdata($user_id)->user_login,-10);
+	$wpdb->insert('person',array('user'=>$user_id, 'phone'=>$phone,'added_by'=>$user_id));
+	$id = $wpdb->insert_id;
+	update_user_meta($user_id,'person',$id);
+}
+function select_entity($entity,$key, $value){
+	global $wpdb;
+	$result = '';
+	if ($key && $value) {
+		$sql .=  'WHERE '.$key.'=\''.$value.'\'';
+		$pre = $wpdb->get_var("SELECT ".$key." FROM ".$key." WHERE id='$value'");
+		$result .= '<p>'.ucwords($key).': <b>'.$pre.' selected</b></p>';
+	}
+	$rows = $wpdb->get_results("SELECT * FROM $entity $sql",ARRAY_A);
+	$result .= '<form method="POST" id="select_form">Select: '.ucwords($entity).'
+		<select class="ui search dropdown" name="'.$entity.'">';
+	foreach ($rows as $row) {
+		$result .= '<option value="'.$row["id"].'">'.$row[$entity].'</option>';
+	}
+	$result .= '</select>
+	<script type="text/javascript">
+        $(".ui.dropdown").dropdown();
+    </script>
+    <button>SELECT</button>
+	<input type="hidden" name="extra_details" value="1">
+	</form>
+	<button type="button" id="add_new" onclick="$(\'#add_form\').toggle();">ADD NEW</button>
+	<form method="POST" id="add_form" style="display:none">
+		<input type="hidden" name="extra_details" value="1">
+		<br><p><b>Add New '.ucwords($entity).' Name in '.$pre.'</b></p>
+		<input type="text" name="'.$entity.'_name">
+		<input type="submit" name="add" value="SUBMIT">
+	</form>';
+	return $result;
+
+}
+
+function show_masjid_details($masjid_id){
+	global $wpdb;
+	$masjid = $wpdb->get_row("SELECT * FROM masjid WHERE id=$masjid_id");
+	$town_id = $masjid->town;
+	$town = $wpdb->get_row("SELECT * FROM town WHERE id='$town_id'");
+	$district_id = $town->district;
+	$district = $wpdb->get_row("SELECT * FROM district WHERE id='$district_id'");
+	$country_id = $district->country;
+	$country = $wpdb->get_row("SELECT * FROM country WHERE id='$country_id'");
+	?>
+	<table>
+		<tr><td>Masjid</td><td><?php echo $masjid->masjid; ?></td></tr>
+		<tr><td>Town</td><td><?php echo $town->town; ?></td></tr>
+		<tr><td>District</td><td><?php echo $district->district; ?></td></tr>
+		<tr><td>Country</td><td><?php echo $country->country; ?></td></tr>
+	</table>
+	<?php
+}
 // User Logout function //
 add_action('init','make_logout');
 function make_logout(){
@@ -41,25 +107,6 @@ function my_plugin_settings_link($links) {
 
 // Enable shortcode working in Widgets
 // add_filter("widget_text", "do_shortcode");
-
-// Send SMS
-// 'https://www.fast2sms.com/dev/bulk?authorization=GNZC1Ak26qSHntL3Wdh5YDcJrzEVlm0wI9BOpiT4R7sexQKavF6IRVoep2TLdxQZgEmvj5UtXnHhz9bO&sender_id=FSTSMS&language=english&route=qt&numbers='.$num.'&message=28047&variables={AA}&variables_values='.$ran_no
-
-function awaaz_head(){
-  echo '
-  <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
-  <script type="text/javascript">
-  $(document).ready(function() {
-  	$(".user-link").first().attr("href","#content");
-    $(".ab-login").html("<a href=/masjid>Login</a>");
-    $("#wp-logout").attr("href","'.wp_logout_url('https://www.muslimawaaz.com/masjid/').'");
-  });
-  </script>
-  <style>
-  	#li-nav-notifications, #li-nav-profile{ display:none; } 
-  </style>';
-}
-add_action('wp_head','awaaz_head');
 
 function my_action_prsn_save() {
   $user_id = get_current_user_id();

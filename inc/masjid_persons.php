@@ -1,30 +1,17 @@
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/button.min.css" integrity="sha512-OD0ScwZAE5PCg4nATXnm8pdWi0Uk0Pp2XFsFz1xbZ7xcXvapzjvcxxHPeTZKfMjvlwwl4sGOvgJghWF2GRZZDw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/icon.min.css" integrity="sha512-8Tb+T7SKUFQWOPIQCaLDWWe1K/SY8hvHl7brOH8Nz5z1VT8fnf8B+9neoUzmFY3OzkWMMs3OjrwZALgB1oXFBg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/table.min.css" integrity="sha512-NtvxKmBWfr6sEZ3y/qV4DTXPEXpP/VZZV5BEaCFxUukf7/cyktgYpfsxs2ERvisbDXfnLJfswd2DYEj0h+qAFA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
 <script type="text/javascript" src="https://semantic-ui.com/javascript/library/tablesort.js"></script>
-
 <link href="https://fonts.googleapis.com/css?family=Mandali|Suranna&display=swap" rel="stylesheet">
 <style type="text/css">
   input[type=number]{      width: 90px; height: 30px; padding: 5px;    }
-  #masthead, .ab-user-links, #main-nav, 
-  .ab-primary-menu-wrapper, .sharedaddy, #colophon{
-    /*display: none !important;*/
-  }
-  .site-content {
-    padding: 20px 0;
-  }
-  .entry-content{
-    margin: 10px 0 0 0;
-  }
-  body{
-    font-size: 120%;
-    /* font-family: Suranna; */
-  }
   .kids     {    text-decoration: overline;    }
   .teens    {    text-decoration: underline;     }
   .work-name{    visibility:hidden; font-size:1px;    }
   button.ui {    height: 35px;  }
   form      {    display:inline;  }
-  .person{   color:blue; cursor:pointer; font-size: 16px;  }
+  .person{   color:blue; cursor:pointer;  }
   .waqBerone{
     background-color:#c4cfff;
   }
@@ -43,7 +30,7 @@
 global $wpdb;
 if(is_user_logged_in()){
 $user_id = get_current_user_id();
-$masjid_id = get_user_meta($user_id, 'masjid', true);
+$masjid_id = get_user_meta($user_id, 'extra_details', true)["masjid"];
 
 $places = $wpdb->get_results("SELECT * FROM place WHERE masjid = $masjid_id ORDER BY place ASC");
 if (!$places) {
@@ -65,14 +52,6 @@ if (!$places) {
   exit;
 }
 $persons = $wpdb->get_var("SELECT COUNT(id) from person where masjid=$masjid_id");
-if (!$persons) {
-  ?>
-  <h1>Person</h1>
-  <p>Now you have added places. After that. You can add persons. Select place for each person.</p>
-  <a href="<?php echo site_url(); ?>/add-person/" class="ui green button">Add Person</a>
-  <?php
-  exit;
-}
 $place_opts = $wpdb->get_results("SELECT id,place FROM place WHERE masjid = $masjid_id",OBJECT_K);
 $t_place_opts = $wpdb->get_results("SELECT id,t_place FROM place WHERE masjid = $masjid_id",OBJECT_K);
 
@@ -81,11 +60,8 @@ $tel = $_GET["telugu"];
 if($masjid_id){
   $caps = 'view_edit';
 }
-$masjid_view = get_user_meta($user_id, 'masjid_view', true);
-if(($masjid_id) || ($masjid_view)){
-  if($masjid_view){
-    $masjid_id = $masjid_view;
-  }
+
+if(($masjid_id)){
   if ($tel) {
     $masjid_name = get_t_masjid_name($masjid_id);
     $place = $t_place_opts[$_GET["place_id"]]->t_place;
@@ -94,21 +70,6 @@ if(($masjid_id) || ($masjid_view)){
     $place = $place_opts[$_GET["place_id"]]->place;
   }
 ?>
-<script type="text/javascript">
-  $("#menu-item-33").html("<a href='<?php echo wp_logout_url(site_url().'/login/'); ?>'>Logout</a>");
-  $("#menu-item-2960").html("<a href='<?php echo wp_logout_url(site_url().'/login/'); ?>'>Logout</a>");
-  $(".entry-title").first().html('<a href="<?php echo site_url(); ?>/masjid"><?php echo $masjid_name; ?></a>');
-  $("title").first().html('<?php echo get_masjid_name($masjid_id); ?>');
-  <?php if($_GET["place_id"]){ ?>
-    $(".entry-title").first().append('<?php echo ' > <a style="color:red;" href="<?php echo site_url(); ?>/masjid/?masjid_id='.$_GET["masjid_id"].'&place_id='.$_GET["place_id"].'">'.$place; ?></a>');
-    $("title").first().html('<?php echo $place_opts[$_GET["place_id"]]->place.' - '.get_masjid_name($masjid_id); ?>');
-  <?php } ?>
-  $(".entry-title").first().css("fontSize", "20px");
-  $(".entry-title").first().css("color", "green");
-  $(".entry-title").first().css("display", "inline");
-  $(".entry-title").first().css("text-transform", "capitalize");
-  $("header").css("text-align", "center");
-</script>
 <!--<button id="charts_btn" class="ui red button"><i class="chart bar icon"></i>Chart</button>-->
 <div id="nums_div" style="display: none; padding: 10px;">
 <?php 
@@ -206,7 +167,11 @@ if ($tel) {
   <button onclick="waqth_filter('all')" class="ui pink button">All</button>
   <button onclick="juma_filter('')" class="ui button">None</button>
 </div>
-<table class="ui very compact sortable table green" id="main_table">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.20/b-1.6.1/b-colvis-1.6.1/b-flash-1.6.1/b-html5-1.6.1/b-print-1.6.1/cr-1.5.2/sp-1.0.1/datatables.min.css"/>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.20/b-1.6.1/b-colvis-1.6.1/b-flash-1.6.1/b-html5-1.6.1/b-print-1.6.1/cr-1.5.2/sp-1.0.1/datatables.min.js"></script>
+<table clas="ui very compact sortable table green" id="main_table">
   <thead>
     <tr id="hrow">
           <th style="width: 25px;"></th>
@@ -226,16 +191,11 @@ if ($tel) {
 if(!$place_id){
   $n_stu = $wpdb->get_var("SELECT COUNT(id) FROM person WHERE masjid = $masjid_id AND work = 1");
   $n_tch = $wpdb->get_var("SELECT COUNT(id) FROM person WHERE masjid = $masjid_id AND work = 2");
-  ?><script type="text/javascript">
-    //$('#stu_btn').append(' - <?php echo $n_stu; ?>');
-    //$('#tch_btn').append(' - <?php echo $n_tch; ?>');
-  </script>
-  <?php
   $rows = $wpdb->get_results("SELECT * FROM person 
         WHERE masjid = $masjid_id 
         ORDER BY tashkeel_date DESC
         LIMIT 100");
-  //$wpdb->show_errors(); $wpdb->print_error();
+  // $wpdb->show_errors(); $wpdb->print_error();
 }
 if(isset($_GET["place_id"])){
   $place_id = $_GET["place_id"];
@@ -255,7 +215,7 @@ if(isset($_GET["place_id"])){
 </script>
  <?php
   foreach ($rows as $row) {
-    echo  '<tr class="rows work'.$row->work.' waq'.$row->waqth.' qaq'.$row->qwaqth.' all juma'.$row->juma[5].'">';
+    echo '<tr class="rows work'.$row->work.' waq'.$row->waqth.' qaq'.$row->qwaqth.' all juma'.$row->juma[5].'">';
     $from = new DateTime( $row->dob );
     $to   = new DateTime('today');
     $ag   = $from->diff($to)->y;
@@ -277,15 +237,15 @@ if(isset($_GET["place_id"])){
   */
   echo '<td>';
   echo '<b><span id="person'.$row->id.'">';
-if ($row->admin==$user_id) {
-  echo '<a href="'.site_url().'/edit-profile/?id='.$row->id. $dif_place .'">';
+if ($row->added_by==$user_id) {
+  echo '<a href="'.site_url().'/person-edit/?id='.$row->id. $dif_place .'">';
 }
   if ($tel && $row->t_name) {
     echo $row->t_name;
   } else {
     echo $row->person;
   }
-  if ($row->admin==$user_id) {
+  if ($row->added_by==$user_id) {
     echo '</a>';
   }
   echo '</span></b>';
@@ -358,6 +318,14 @@ if ($row->admin==$user_id) {
   }
 ?>
 </table>
+<script type="text/javascript">
+  $(document).ready(function() {
+      $("#main_table").DataTable( {
+          dom: "lfrtip",
+           "pageLength": 100
+      } );
+  } );
+  </script>
 <?php
 if ($tel) {
   ?>
@@ -681,43 +649,12 @@ if($caps == 'view_edit'){ ?>
       $('#juma_name'+id).html(response);
     });
   };
-  $('.links-btn').html('Menu');
-</script>
-<?php } ?>
-<script type="text/javascript">
-  $('table').tablesort();
-</script>
-<?php
-//$wpdb->update('person',array('work' => '16'),array('work' => ''));
-} else {
-  echo 'You are not allowed here.';
-}
-//update_user_meta($user_id, 'masjid','0');
-} else {
-  ?>
-  <p id="login_error" style="color:red"></p>
-
-  <form action="" method="POST">
-    <table class="ui striped collapsing table">
-      <tr>
-        <td>Username
-        </td>
-        <td><input type="text" name="username"></td>
-      </tr>
-      <tr>
-        <td>Password
-        </td>
-        <td><input type="password" name="pwd"></td>
-      </tr>
-      <tr>
-        <td></td>
-        <td>
-          <input type="submit" name="login" value="OK"
-              class="ui blue button">
-        </td>
-      </tr>
-    </table>
-    
-  </form>
+    $('.links-btn').html('Menu');
+  </script>
+  <?php } ?>
+  <script type="text/javascript">
+    $('table').tablesort();
+  </script>
   <?php
+}
 }
