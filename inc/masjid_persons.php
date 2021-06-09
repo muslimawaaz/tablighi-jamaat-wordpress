@@ -4,33 +4,21 @@
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
 <script type="text/javascript" src="https://semantic-ui.com/javascript/library/tablesort.js"></script>
 <link href="https://fonts.googleapis.com/css?family=Mandali|Suranna&display=swap" rel="stylesheet">
-<style type="text/css">
-  input[type=number]{      width: 90px; height: 30px; padding: 5px;    }
-  .kids     {    text-decoration: overline;    }
-  .teens    {    text-decoration: underline;     }
-  .work-name{    visibility:hidden; font-size:1px;    }
-  button.ui {    height: 35px;  }
-  form      {    display:inline;  }
-  .person{   color:blue; cursor:pointer;  }
-  .waqBerone{
-    background-color:#c4cfff;
-  }
-  .waq4months{
-    background-color:#a4ff8e;
-  }
-  .waq40days{
-    background-color:#8effef;
-  }
-  .waq3days{
-    background-color:#ffdb8e;
-  }
-</style>
 <meta name="viewport" content="width=1024, initial-scale=1.0">
 <?php 
 global $wpdb;
 if(is_user_logged_in()){
 $user_id = get_current_user_id();
 $masjid_id = get_user_meta($user_id, 'extra_details', true)["masjid"];
+$masjid_admin = get_user_meta($user_id, 'masjids', true);
+if (!$masjid_admin) {
+  $masjid_admin = array();
+}
+if (in_array($masjid_id, $masjid_admin)) {
+  $admin = true;
+} else {
+  $admin = false;
+}
 
 $places = $wpdb->get_results("SELECT * FROM place WHERE masjid = $masjid_id ORDER BY place ASC");
 if (!$places) {
@@ -139,17 +127,7 @@ if ($tel) {
   echo '<a href="'.get_permalink().'?telugu=1'.$link_pl.$link_full.'"><button class="ui violet button">తెలుగు</button></a>';
 }
 ?>
-<button class="ui grey button" id="btn_print">Print</button>
-<script type="text/javascript">
-  $('#tophead').show();
-  $('#btn_print').on('click',function(){
-    $('#tophead').hide();
-    $('#btns_waqth').hide();
-    $('#btns_juma').hide();
-    $('#primary').css('width','90%');
-    window.print();
-  });
-</script>
+<button class="ui grey button" onclick="window.print();">Print</button>
 <div style="padding-top: 10px" id="btns_waqth"><span>Waqth</span> : - 
   <button onclick="waqth_filter('Berone')" class="ui violet button">Berone</button>
   <button onclick="waqth_filter('4months')" class="ui green button">4 Months</button>
@@ -171,6 +149,7 @@ if ($tel) {
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.20/b-1.6.1/b-colvis-1.6.1/b-flash-1.6.1/b-html5-1.6.1/b-print-1.6.1/cr-1.5.2/sp-1.0.1/datatables.min.js"></script>
+<hr>
 <table clas="ui very compact sortable table green" id="main_table">
   <thead>
     <tr id="hrow">
@@ -237,7 +216,7 @@ if(isset($_GET["place_id"])){
   */
   echo '<td>';
   echo '<b><span id="person'.$row->id.'">';
-if ($row->added_by==$user_id) {
+if ($row->added_by==$user_id || $admin) {
   echo '<a href="'.site_url().'/person-edit/?id='.$row->id. $dif_place .'">';
 }
   if ($tel && $row->t_name) {
@@ -245,7 +224,7 @@ if ($row->added_by==$user_id) {
   } else {
     echo $row->person;
   }
-  if ($row->added_by==$user_id) {
+  if ($row->added_by==$user_id || $admin) {
     echo '</a>';
   }
   echo '</span></b>';
@@ -274,7 +253,7 @@ if ($row->added_by==$user_id) {
 
   echo '</td>
         <td>';
-  if($row->admin==$user_id){
+  if($admin&&0){
     echo ' <i class="edit red icon" id="tashkeel_d_edit'.$row->id.'" 
                     onclick="tashkeel_d_edit('.$row->id.')" ></i> 
     <i class="checkmark green large icon" id="tashkeel_d_save'.$row->id.'" 
@@ -286,23 +265,23 @@ if ($row->added_by==$user_id) {
   }
   echo '</span>';
 
-  if($row->admin==$user_id){
+  if($admin&&0){
   echo ' <br><i class="edit red icon" id="tashkeel_j_edit'.$row->id.'" 
             onclick="tashkeel_j_edit('.$row->id.')"></i> 
         <i class="checkmark green large icon" id="tashkeel_j_save'.$row->id.'" 
             onclick="tashkeel_j_save('.$row->id.')" style="display:none"></i>';
   }
   echo '<br><span id="tashkeel_j_name'.$row->id.'" class="tsk'.$row->tashkeel_jamath.'">'.$row->tashkeel_jamath.'</span>';
-  if($row->admin==$user_id && 0){
+  if($admin&&0){
     echo '<br><i class="edit red icon" id="response_edit'.$row->id.'" 
               onclick="response_edit('.$row->id.')"></i> 
           <i class="checkmark green large icon" id="response_save'.$row->id.'" 
               onclick="response_save('.$row->id.')" style="display:none"></i>';
-    }
     echo '<br>';
     echo ' <i class="edit red icon" id="response_edit'.$row->id.'" onclick="response_edit('.$row->id.')"></i> 
               <i class="checkmark green icon" id="response_save'.$row->id.'" 
         onclick="response_save('.$row->id.')" style="display:none"></i>';
+    }
     echo '<span id="response_name'.$row->id.'">'.$row->response.'</span></td>
     <td>'.$row->juma.'</td>
     <td>'.$row->waqth.'</td>
@@ -649,12 +628,28 @@ if($caps == 'view_edit'){ ?>
       $('#juma_name'+id).html(response);
     });
   };
-    $('.links-btn').html('Menu');
   </script>
-  <?php } ?>
-  <script type="text/javascript">
-    $('table').tablesort();
-  </script>
-  <?php
+  <?php 
+  }
 }
 }
+?>
+<style type="text/css">
+  .kids     {    text-decoration: overline;    }
+  .teens    {    text-decoration: underline;     }
+  .work-name{    visibility:hidden; font-size:1px;    }
+  form      {    display:inline;  }
+  .person{   color:blue; cursor:pointer;  }
+  .waqBerone{
+    background-color:#c4cfff !important;
+  }
+  .waq4months{
+    background-color:#a4ff8e !important;
+  }
+  .waq40days{
+    background-color:#8effef !important;
+  }
+  .waq3days{
+    background-color:#ffdb8e !important;
+  }
+</style>

@@ -1,17 +1,9 @@
 <form action="" method="post">
 <table class="ui fixed table green">
-	<tr>
-		<td colspan="2">
-		<center>
-		<input type="submit" name="save_profile" value="Save" class="ui green button" id="btn_save1">
-		<i class="" id="save_icon1"></i>
-		</center>
-		</td>
-	</tr>
 	<tr><td>Name</td>
 		<td>
 			<div class="speech">
-			  <input type="text" name="person" id="person" />
+			  <input type="text" name="person" id="person" required="" />
 			  <i class="microphone blue big icon" id="mic_person" onclick="startDictation('person')" ></i>
 			</div>  
 		</td>
@@ -43,7 +35,8 @@
 	</tr>
 	<tr><td>Work</td>
 		<td>
-			<select name="work" class="ui dropdown" id="work1">';
+			<select name="work" class="ui search dropdown" id="work1">';
+					<option value="">--</option>
 		  	<?php 
 			  $works = $wpdb->get_results("SELECT * FROM work");
 			  foreach ($works as $work) {
@@ -69,7 +62,8 @@
 	</tr>
 	<tr><td>Place / Area</td>
 		<td>
-			<select name="place" id="place1" class="ui dropdown">
+			<select name="place" id="place1" class="ui search dropdown">
+					<option value="">--</option>
 			<?php
 			$places  = $wpdb->get_results("SELECT * FROM place WHERE masjid = $masjid_id");
 			foreach ($places as $place){
@@ -109,7 +103,8 @@
 	</tr>
 	<tr>
 		<td>Tashkeel Jamath</td>
-		<td><select name="tashkeel_jamath" id="tashkeel_jamath1" class="ui dropdown">
+		<td><select name="tashkeel_jamath" id="tashkeel_jamath1" class="ui search dropdown">
+				<option value="">--</option>
 		  		<option value="3days">3days</option>
 				<option value="40days">40days</option>
 				<option value="4months">4months</option>
@@ -122,7 +117,8 @@
 		</td>
 	</tr>
 	<tr><td>Monthly which Juma</td>
-		<td><select name="juma" id="juma1" class="ui dropdown">
+		<td><select name="juma" id="juma1" class="ui search dropdown">
+				<option value="">--</option>
 				<option value="Juma 1">Juma 1</option>
 				<option value="Juma 2">Juma 2</option>
 				<option value="Juma 3">Juma 3</option>
@@ -132,7 +128,8 @@
 		</td></tr>
 		<tr><td>Waqth</td>
 		<td>
-			<select name="waqth" id="waqth1" class="ui dropdown">
+			<select name="waqth" id="waqth1" class="ui search dropdown">
+					<option value="">--</option>
 				<option value="3days">3days</option>
 				<option value="40days">40days</option>
 				<option value="4months">4months</option>
@@ -141,7 +138,8 @@
 		</td>
 	</tr>
 	<tr><td>Waqth ma masturath</td>
-		<td><select name="qwaqth" id="qwaqth1" class="ui dropdown">
+		<td><select name="qwaqth" id="qwaqth1" class="ui search dropdown">
+				<option value="">--</option>
 				<option value="3days">3days</option>
 				<option value="10days">10days</option>
 				<option value="40days">40days</option>
@@ -150,7 +148,8 @@
 		</td>
 	</tr>
 	<tr><td>Language:</td>
-		<td><select name="language" id="language1" class="ui dropdown">
+		<td><select name="language" id="language1" class="ui search dropdown">
+				<option value="">--</option>
 			<option value="Urdu">Urdu</option>
 			<option value="Telugu">Telugu</option>
 			<option value="English">English</option>
@@ -160,8 +159,8 @@
 	<tr>
 		<td colspan="2">
 			<center>
-			<input type="submit" name="save_profile" value="Save" id="btn_save2" class="ui green button">
-			<i class="" id="save_icon2"></i>
+			<input type="submit" name="save_profile" value="Save" id="btn_save1" class="ui green button">
+			<i class="" id="save_icon1"></i>
 			</center>
 		</td>
 	</tr>
@@ -197,11 +196,6 @@
 	}
 	$('#btn_save1').click(function(){
 		$('#save_icon1').addClass('sync alternate icon loading green large');
-		$('#save_icon2').addClass('sync alternate icon loading green large');
-	});
-	$('#btn_save2').click(function(){
-		$('#save_icon1').addClass('sync alternate icon loading green large');
-		$('#save_icon2').addClass('sync alternate icon loading green large');
 	});
 </script>
 <script>

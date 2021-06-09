@@ -44,14 +44,17 @@ function select_entity($entity,$key, $value){
     </script>
     <button>SELECT</button>
 	<input type="hidden" name="extra_details" value="1">
-	</form>
-	<button type="button" id="add_new" onclick="$(\'#add_form\').toggle();">ADD NEW</button>
-	<form method="POST" id="add_form" style="display:none">
-		<input type="hidden" name="extra_details" value="1">
-		<br><p><b>Add New '.ucwords($entity).' Name in '.$pre.'</b></p>
-		<input type="text" name="'.$entity.'_name">
-		<input type="submit" name="add" value="SUBMIT">
 	</form>';
+	if ($entity!='country') {
+		$result .= '
+		<button type="button" id="add_new" onclick="$(\'#add_form\').toggle();">ADD NEW</button>
+		<form method="POST" id="add_form" style="display:none">
+			<input type="hidden" name="extra_details" value="1">
+			<br><p><b>Add New '.ucwords($entity).' Name in '.$pre.'</b></p>
+			<input type="text" name="'.$entity.'_name">
+			<input type="submit" name="add" value="SUBMIT">
+		</form>';
+	}
 	return $result;
 
 }
@@ -80,7 +83,7 @@ function make_logout(){
     if (isset($_GET["logout"])) {
         if ($_GET["logout"]=="yes") {
             wp_logout();
-            $logout_redirect = "/login";
+            $logout_redirect = "/my-account";
             if ( wp_redirect( $logout_redirect ) ) {
                 exit;
             }
@@ -247,9 +250,9 @@ function my_action_response_save() {
 add_action( 'wp_ajax_my_action5', 'my_action_response_save' );
 function get_person( $id ){
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("
+	$result = $wpdb->get_var("
 		SELECT person FROM person
-		WHERE id = %d " , $id ));
+		WHERE id = $id" );
 	if(strlen($id) > 3 ){
 		return $id;
 	} else {
@@ -258,9 +261,9 @@ function get_person( $id ){
 }
 function get_t_person( $id ){
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("
+	$result = $wpdb->get_var("
 		SELECT t_name FROM person
-		WHERE id = %d " , $id ));
+		WHERE id = $id" );
 	if(strlen($id) > 3 ){
 		return $id;
 	} else {
@@ -269,9 +272,9 @@ function get_t_person( $id ){
 }
 function get_person_identifier( $id ){
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("
+	$result = $wpdb->get_var("
 		SELECT identifier FROM person
-		WHERE id = %d " , $id ));
+		WHERE id = $id" );
 	if(strlen($id) > 3 ){
 		return $id;
 	} else {
@@ -280,9 +283,9 @@ function get_person_identifier( $id ){
 }
 function get_t_person_identifier( $id ){
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("
+	$result = $wpdb->get_var("
 		SELECT t_identifier FROM person
-		WHERE id = %d " , $id ));
+		WHERE id = $id" );
 	if(strlen($id) > 3 ){
 		return $id;
 	} else {
@@ -291,55 +294,60 @@ function get_t_person_identifier( $id ){
 }
 function get_person_masjid( $id ){
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("
+	$result = $wpdb->get_var("
 		SELECT masjid FROM person
-		WHERE id = %d " , $id ));
+		WHERE id = $id" );
 		return $result;
 }
 function get_place( $id ){
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("
+	$result = $wpdb->get_var("
 		SELECT place FROM places
-		WHERE id = %d " , $id ));
+		WHERE id = $id" );
 		return $result;
 }
 function get_t_place( $id ){
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("
+	$result = $wpdb->get_var("
 		SELECT t_place FROM places
-		WHERE id = %d " , $id ));
+		WHERE id = $id" );
 		return $result;
 }
 function get_masjid_name( $id ){
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("
+	$result = $wpdb->get_var("
 		SELECT masjid FROM masjid
-		WHERE id = %d " , $id ));
+		WHERE id = $id" );
 		return $result;
 }
 function get_t_masjid_name( $id ){
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("
+	$result = $wpdb->get_var("
 		SELECT t_masjid FROM masjid
-		WHERE id = %d " , $id ));
+		WHERE id = $id" );
 		return $result;
 }
 function get_masjid_halqa( $id ){
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("
+	$result = $wpdb->get_var("
 		SELECT halqa FROM masjid
-		WHERE id = %d " , $id ));
+		WHERE id = $id" );
 	if(strlen($id) > 3 ){
 		return $id;
 	} else {
 		return $result;
 	}
 }
+function get_masjid_town( $id ){
+	global $wpdb;
+	$result = $wpdb->get_var("SELECT town FROM masjid WHERE id = $id" );
+	return $result;
+}
 function get_halqa_name( $id ){
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("
-		SELECT halqa FROM halqas
-		WHERE id = %d " , $id ));
+	$result = $wpdb->get_var("
+		SELECT halqa FROM halqa
+		WHERE id = $id" );
 	if(strlen($id) > 3 ){
 		return $id;
 	} else {
@@ -348,96 +356,70 @@ function get_halqa_name( $id ){
 }
 function get_halqa_town( $id ){
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("
-		SELECT town FROM halqas
-		WHERE id = %d " , $id ));
-	if(strlen($id) > 3 ){
-		return $id;
-	} else {
-		return $result;
-	}
+	$result = $wpdb->get_var("SELECT town FROM halqa WHERE id = $id" );
+	return $result;
 }
 
 function get_town_name( $id ){
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("
-		SELECT town FROM towns
-		WHERE id = %d " , $id ));
-	if(strlen($id) > 3 ){
-		return $id;
-	} else {
-		return $result;
-	}
+	$result = $wpdb->get_var("SELECT town FROM town WHERE id = $id" );
+	return $result;
 }
 function get_district_name( $id ){
 	global $wpdb;
-	$result = $wpdb->get_var("
-		SELECT district FROM districts
-		WHERE id = $id" );
-	return $result;
-}
-function get_state_name( $id ){
-	global $wpdb;
-	$result = $wpdb->get_var("
-		SELECT state FROM states
-		WHERE id = $id" );
+	$result = $wpdb->get_var("SELECT district FROM district WHERE id = $id" );
 	return $result;
 }
 function get_country_name( $id ){
 	global $wpdb;
-	$result = $wpdb->get_var("
-		SELECT country FROM countries
-		WHERE id = $id" );
+	$result = $wpdb->get_var("SELECT country FROM country WHERE id = $id" );
 	return $result;
 }
 
 function get_waqth_person( $id , $waqth ){
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("
-				SELECT COUNT(id) FROM person 
-				WHERE waqth = %s
-				AND masjid = %s", $waqth , $id ) );
+	$result = $wpdb->get_var("SELECT COUNT(id) FROM person WHERE waqth ='$waqth' AND masjid ='$id'");
 	return $result;
 }
 
 function get_baligh_mard( $id ){
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("
+	$result = $wpdb->get_var("
 				SELECT COUNT(id) FROM person 
 				WHERE waqth = %s
-				AND masjid = %s " , $waqth , $id ) );
+				AND masjid = %s " , $waqth , $id );
 	return $result;	
 }
 function get_waqth_person_in_town( $id , $waqth ){
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("
+	$result = $wpdb->get_var("
 				SELECT COUNT(id) FROM person 
 				WHERE waqth = %s
-				AND town = %s", $waqth , $id ) );
+				AND town = %s", $waqth , $id );
 	return $result;
 }
 function get_baligh_mard_in_town( $id ){
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("
+	$result = $wpdb->get_var("
 				SELECT COUNT(id) FROM person 
 				WHERE waqth = %s
-				AND town = %s " , $waqth , $id ) );
+				AND town = %s " , $waqth , $id );
 	return $result;	
 }
 function get_waqth_person_in_halqa( $id , $waqth ){
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("
+	$result = $wpdb->get_var("
 				SELECT COUNT(id) FROM person 
 				WHERE waqth = %s
-				AND halqa = %s", $waqth , $id ) );
+				AND halqa = %s", $waqth , $id );
 	return $result;
 }
 function get_baligh_mard_in_halqa( $id ){
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("
+	$result = $wpdb->get_var("
 				SELECT COUNT(id) FROM person 
 				WHERE waqth = %s
-				AND halqa = %s " , $waqth , $id ) );
+				AND halqa = %s " , $waqth , $id );
 	return $result;	
 }
 function get_icon_class($id){

@@ -57,10 +57,10 @@ if (!$user_id) {
 					$('input[name=id]').val('<?php echo $_POST["id"]; ?>');
 					$('#small_frm').html('Edit Here');
 				</script>
-			<script type="text/javascript">
-				$('input[name=place]').val('<?php echo $data["place"]; ?>');
-				$('input[name=t_place]').val('<?php echo $data["t_place"]; ?>');
-			</script>
+				<script type="text/javascript">
+					$('input[name=place]').val('<?php echo $data["place"]; ?>');
+					$('input[name=t_place]').val('<?php echo $data["t_place"]; ?>');
+				</script>
 				<?php
 			}
 			if($_POST["action"]=='Save'){
@@ -86,7 +86,7 @@ if (!$user_id) {
 				</thead>
 				<tbody>
 					<?php
-					$rows = $wpdb->get_results("SELECT * FROM $table_name ORDER BY id DESC");
+					$rows = $wpdb->get_results("SELECT * FROM $table_name WHERE masjid='$masjid_id' ORDER BY id DESC");
 					foreach($rows as $row){
 						echo '<tr row-id="'.$row->id.'">';
 						echo '<td>'.$row->place.'</td>';

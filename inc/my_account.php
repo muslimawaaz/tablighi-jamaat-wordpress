@@ -46,19 +46,24 @@ if (!$user_id) {
 			goto top;
 		}
 	} else {
-		$masjid_id = $wpdb->get_var("SELECT masjid FROM person WHERE id=$person_id");
+		$all_ids = get_user_meta($user_id, 'masjids', true);
+		if ($all_ids) {
+			if ($_POST['change_masjid']) {
+				if (in_array($_POST['change_masjid'], $all_ids)) {
+					$new["masjid"] = $_POST['change_masjid'];
+					update_user_meta($user_id, 'extra_details',$new);
+				}
+			}
+		}
+		$masjid_id = get_user_meta($user_id, 'extra_details', true)["masjid"];
 		if ($masjid_id) {
+			echo "<h3>Current Masjid Info:</h3>";
 			show_masjid_details($masjid_id);
 		} else {
 			$extra_details = get_user_meta($user_id,'extra_details',true);
 			if ($_POST['extra_details']) {
 			if (!$extra_details["country"] && !$extra_details["district"] && !$extra_details["town"] && !$extra_details["masjid"]) {
-				if ($_POST["add"]) {
-					$wpdb->insert('country',array('country'=>$_POST['country_name']));
-					$details['country'] = $wpdb->insert_id;
-				} else {
-					$details["country"] = $_POST['country'];
-				}
+				$details["country"] = $_POST['country'];
 			} else if ($extra_details["country"]) {
 				if ($_POST["add"]) {
 					$wpdb->insert('district',array('district'=>$_POST['district_name'],'country'=>$extra_details["country"]));
@@ -102,16 +107,29 @@ if (!$user_id) {
 				echo select_entity("masjid","town",$extra_details["town"]);
 			}
 		}
-	}
-	if ($person_id) {
-		?>
-		<form>
+		$all_ids = get_user_meta($user_id, 'masjids', true);
+		if ($all_ids) {
+			?>
+			<h3>You admin of the following Masjids:</h3>
 			<table>
-				<tr><td>Your Name</td><td><input type="text" name="person"></td></tr>
-				<tr><td>Your Name</td><td><input type="text" name=""></td></tr>
+			<?php
+			foreach ($all_ids as $all_id) {
+				$masjid = $wpdb->get_row("SELECT * FROM masjid WHERE id='$all_id'");
+				?>
+				<tr><td><?php echo $masjid->masjid; ?></td>
+					<td>
+						<form method="POST">
+						<input type="hidden" name="change_masjid" value="<?php echo $masjid->id; ?>">
+						<button>SELECT</button>
+						</form>
+					</td>
+				</tr>
+				<?php
+			}
+			?>
 			</table>
-		</form>
-		<?php
+			<?php
+		}
 	}
 }
 clear_form_data();
