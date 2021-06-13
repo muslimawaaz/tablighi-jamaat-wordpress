@@ -8,7 +8,7 @@ Author: Sufyan
 Author URI: https://www.sufyan.in/
 License: GPLv2 or later
 */
-//$wpdb->show_errors(); $wpdb->print_error();
+// $wpdb->show_errors(); $wpdb->print_error();
 
 //add_role('masjid','Masjid ID');
 date_default_timezone_set('Asia/Kolkata');
@@ -63,6 +63,7 @@ add_shortcode('halqa',			function(){ include ('inc/halqa.php'); });
 add_shortcode('masjid_wari_jamath',	function(){ include 'inc/masjid_wari_jamath.php'; });
 add_shortcode('masjid',			function(){ include 'inc/masjid.php'; });
 add_shortcode('my_account',	    function(){ include 'inc/my_account.php'; });
+add_shortcode('karguzari_masjid',     function(){ include 'inc/karguzari_masjid.php'; });
 
 
 include 'inc/functions.php';
